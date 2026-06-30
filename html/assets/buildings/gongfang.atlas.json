@@ -1,0 +1,16 @@
+{
+  "frames": [
+    {
+      "filename": "gongfang.stand",
+      "frame": { "w": 294, "h": 180, "x": 2, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    }
+  ],
+  "config": {
+    "noSpacing": false,
+    "totalWidth": 298,
+    "totalHeight": 184,
+    "frameWidth": 294,
+    "frameHeight": 180
+  }
+}

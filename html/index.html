@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="我在古代建房子">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>我在古代建房子</title>
+    <style>
+        :root {
+            --scale-factor: 1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            outline: none;
+        }
+        
+        body {
+            background: #2d1b0e;
+            overflow: hidden;
+            font-family: 'Microsoft YaHei', 'SimSun', serif;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #game-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        #task-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(45, 27, 14, 0.95);
+            border: 3px solid #d4a574;
+            border-radius: 10px;
+            padding: 15px;
+            width: 350px;
+            max-width: 90vw;
+            pointer-events: auto;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        #task-title {
+            font-size: 20px;
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 2px solid #d4a574;
+            padding-bottom: 8px;
+        }
+        
+        #task-content {
+            font-size: 16px;
+            color: #f5e6d3;
+            line-height: 1.6;
+        }
+        
+        #task-progress {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #d4a574;
+        }
+        
+        #backpack-panel {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(45, 27, 14, 0.95);
+            border: 3px solid #d4a574;
+            border-radius: 10px;
+            padding: 15px;
+            pointer-events: auto;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        #map-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(45, 27, 14, 0.95);
+            border: 3px solid #d4a574;
+            border-radius: 10px;
+            padding: 15px;
+            pointer-events: auto;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            min-width: 200px;
+        }
+        
+        #map-title {
+            font-size: 18px;
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        #map-container {
+            position: relative;
+            width: 180px;
+            height: 120px;
+            background: #8B7355;
+            border: 2px solid #5d3a1a;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+            background-image: url('assets/map/map.png');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        #player-marker {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff0000;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        
+        .map-marker {
+            position: absolute;
+            font-size: 16px;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .map-marker:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+        
+        #backpack-title {
+            font-size: 18px;
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        #backpack-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 60px);
+            gap: 8px;
+        }
+        
+        .backpack-slot {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #8b6914;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .backpack-slot.filled {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+        
+        .backpack-icon {
+            font-size: 28px;
+        }
+        
+        .backpack-count {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 12px;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #000;
+        }
+        
+        .backpack-name {
+            font-size: 10px;
+            color: #f5e6d3;
+            margin-top: 2px;
+            text-align: center;
+        }
+        
+        #dialogue-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 200;
+            padding-bottom: 50px;
+        }
+        
+        #dialogue-modal.active {
+            display: flex;
+        }
+        
+        #dialogue-box {
+            background: linear-gradient(180deg, #3d2514 0%, #2d1b0e 100%);
+            border: 4px solid #d4a574;
+            border-radius: 15px;
+            padding: 25px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+        
+        #dialogue-speaker {
+            font-size: 22px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        
+        #dialogue-text {
+            font-size: 18px;
+            color: #f5e6d3;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        #dialogue-hint {
+            font-size: 14px;
+            color: #d4a574;
+            text-align: right;
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        #knowledge-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+        }
+        
+        #knowledge-modal.active {
+            display: flex;
+        }
+        
+        #knowledge-box {
+            background: linear-gradient(180deg, #3d2514 0%, #2d1b0e 100%);
+            border: 4px solid #ffd700;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.3);
+        }
+        
+        #knowledge-title {
+            font-size: 26px;
+            color: #ffd700;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #d4a574;
+        }
+        
+        #knowledge-content {
+            font-size: 16px;
+            color: #f5e6d3;
+            line-height: 2;
+        }
+        
+        #knowledge-close {
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #d4a574 0%, #8b6914 100%);
+            border: none;
+            border-radius: 8px;
+            color: #2d1b0e;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        #knowledge-close:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(212, 165, 116, 0.4);
+        }
+        
+        #action-hint {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(45, 27, 14, 0.9);
+            border: 2px solid #d4a574;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: #f5e6d3;
+            font-size: 16px;
+            display: none;
+            z-index: 150;
+        }
+        
+        #action-hint.active {
+            display: block;
+        }
+        
+        #collect-button {
+            position: fixed;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 40px;
+            font-size: 20px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            border: none;
+            border-radius: 10px;
+            color: #2d1b0e;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+            z-index: 160;
+            display: none;
+        }
+        
+        #collect-button:hover {
+            transform: translateX(-50%) translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6);
+        }
+        
+        #collect-button.active {
+            display: block;
+        }
+        
+        #collect-button.collecting {
+            background: linear-gradient(135deg, #888 0%, #666 100%);
+            cursor: not-allowed;
+        }
+        
+        #collect-progress {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #d4a574;
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 160;
+            display: none;
+        }
+        
+        #collect-progress.active {
+            display: block;
+        }
+        
+        #collect-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700 0%, #ff8c00 100%);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        #start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(180deg, #2d1b0e 0%, #1a1008 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        #start-screen.hidden {
+            display: none;
+        }
+        
+        #start-title {
+            font-size: 56px;
+            color: #ffd700;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        #start-subtitle {
+            font-size: 20px;
+            color: #d4a574;
+            margin-bottom: 50px;
+        }
+        
+        #start-btn {
+            padding: 18px 60px;
+            font-size: 24px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            border: none;
+            border-radius: 10px;
+            color: #2d1b0e;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+        
+        #start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6);
+        }
+        
+        .decorative-line {
+            width: 300px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent 0%, #d4a574 50%, transparent 100%);
+            margin-bottom: 30px;
+        }
+        
+        #chopping-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 400;
+        }
+        
+        #chopping-modal.active {
+            display: flex;
+        }
+        
+        #chopping-frame {
+            background: linear-gradient(180deg, #4a7c23 0%, #2d5016 100%);
+            border: 8px solid #5d3a1a;
+            border-radius: 20px;
+            padding: 30px;
+            width: 450px;
+            max-width: 90vw;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7);
+            position: relative;
+        }
+        
+        #chopping-title {
+            text-align: center;
+            font-size: 24px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        #chopping-scene {
+            background: linear-gradient(180deg, #87CEEB 0%, #98D8C8 50%, #4a7c23 50%, #2d5016 100%);
+            border: 4px solid #3d2514;
+            border-radius: 15px;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #tree {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        #tree img {
+            max-width: 200px;
+            max-height: 280px;
+            display: block;
+            transition: all 0.1s;
+        }
+        
+        #axe {
+            position: absolute;
+            bottom: 100px;
+            right: 40px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            filter: drop-shadow(3px 3px 5px rgba(0, 0, 0, 0.5));
+        }
+        
+        #axe:hover {
+            transform: scale(1.1);
+        }
+        
+        #axe:active {
+            transform: scale(0.95);
+        }
+        
+        #axe img {
+            max-width: 120px;
+            max-height: 150px;
+            display: block;
+        }
+        
+        .chopping-axe {
+            animation: chop 0.2s ease-out;
+        }
+        
+        @keyframes chop {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-45deg); }
+            100% { transform: rotate(0deg); }
+        }
+        
+        .tree-shake {
+            animation: shake 0.3s ease-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(-50%); }
+            25% { transform: translateX(-45%); }
+            75% { transform: translateX(-55%); }
+        }
+        
+        .tree-fall {
+            animation: fall 1s ease-in forwards;
+        }
+        
+        @keyframes fall {
+            0% { transform: translateX(-50%) rotate(0deg); transform-origin: bottom center; }
+            100% { transform: translateX(-50%) rotate(90deg) translateY(30px); transform-origin: bottom center; }
+        }
+        
+        #chopping-info {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        #chopping-count {
+            font-size: 20px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        #chopping-timer {
+            font-size: 18px;
+            color: #f5e6d3;
+        }
+        
+        #chopping-timer.urgent {
+            color: #ff4444;
+            animation: pulse 0.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .wood-chip {
+            position: absolute;
+            width: 15px;
+            height: 10px;
+            background: #8B4513;
+            border-radius: 3px;
+            pointer-events: none;
+        }
+        
+        #stone-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 400;
+        }
+        
+        #stone-modal.active {
+            display: flex;
+        }
+        
+        #stone-frame {
+            background: linear-gradient(180deg, #5d4037 0%, #3e2723 100%);
+            border: 8px solid #8d6e63;
+            border-radius: 20px;
+            padding: 30px;
+            width: 550px;
+            max-width: 90vw;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        #stone-frame::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 2px dashed #a1887f;
+            border-radius: 15px;
+            pointer-events: none;
+        }
+        
+        #stone-title {
+            text-align: center;
+            font-size: 26px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+        }
+        
+        #stone-scene {
+            background: linear-gradient(180deg, #6d4c41 0%, #4e342e 50%, #3e2723 100%);
+            border: 4px solid #5d4037;
+            border-radius: 15px;
+            height: 480px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        #stone-scene::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        
+        #stone-foundation {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: grid;
+            grid-template-columns: repeat(4, 60px);
+            grid-template-rows: repeat(4, 60px);
+            gap: 4px;
+        }
+        
+        .foundation-slot {
+            background: linear-gradient(135deg, rgba(93, 58, 26, 0.4) 0%, rgba(62, 39, 35, 0.6) 100%);
+            border: 2px dashed #a1887f;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .foundation-slot::before {
+            content: '';
+        }
+        
+        .foundation-slot.highlight {
+            border-color: #ffd700;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 171, 0, 0.3) 100%);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5), inset 0 2px 6px rgba(0, 0, 0, 0.2);
+            animation: slot-pulse 0.8s infinite;
+        }
+        
+        .foundation-slot.filled {
+            border-color: #6d4c41;
+            border-style: solid;
+            background: transparent;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        #stone-palette {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 450px;
+        }
+        
+        .piece-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .piece-container:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .piece-container.selected {
+            background: rgba(255, 215, 0, 0.4);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+        
+        .piece-container.used {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        
+        .piece-container.can-undo {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            background: rgba(100, 200, 100, 0.3) !important;
+        }
+        
+        .piece-label {
+            font-size: 12px;
+            color: #d4a574;
+        }
+        
+        #undo-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #d4a574 0%, #8b6914 100%);
+            border: none;
+            border-radius: 8px;
+            color: #2d1b0e;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        #undo-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(212, 165, 116, 0.4);
+        }
+        
+        #undo-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        #rotate-button {
+            position: absolute;
+            bottom: 10px;
+            right: 100px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #8b6914 0%, #5d4037 100%);
+            border: none;
+            border-radius: 8px;
+            color: #f5e6d3;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        #rotate-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(139, 105, 20, 0.4);
+        }
+        
+        #rotate-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        #mortise-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 400;
+        }
+        
+        #mortise-modal.active {
+            display: flex;
+        }
+        
+        #mortise-frame {
+            background: linear-gradient(180deg, #5d4037 0%, #3e2723 100%);
+            border: 8px solid #8d6e63;
+            border-radius: 20px;
+            padding: 30px;
+            width: 600px;
+            max-width: 90vw;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        #mortise-frame::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 2px dashed #a1887f;
+            border-radius: 15px;
+            pointer-events: none;
+        }
+        
+        #mortise-title {
+            text-align: center;
+            font-size: 26px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+        }
+        
+        #mortise-scene {
+            background: linear-gradient(180deg, #6d4c41 0%, #4e342e 50%, #3e2723 100%);
+            border: 4px solid #5d4037;
+            border-radius: 15px;
+            height: 420px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 5px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        #mortise-scene::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        
+        #mortise-tenons {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .tenon-piece {
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #8d6e63 0%, #6d4c41 100%);
+            border: 2px solid #5d4037;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #f5e6d3;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tenon-piece:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        }
+        
+        .tenon-piece.selected {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+            color: #2d1b0e;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+        }
+        
+        .tenon-piece.used {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        
+        #mortise-holes {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .mortise-hole {
+            width: 180px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(93, 58, 26, 0.5) 0%, rgba(62, 39, 35, 0.7) 100%);
+            border: 3px dashed #a1887f;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .mortise-hole.highlight {
+            border-color: #ffd700;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 171, 0, 0.3) 100%);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        
+        .mortise-hole.filled {
+            border-color: #8d6e63;
+            border-style: solid;
+            background: linear-gradient(135deg, #8d6e63 0%, #6d4c41 100%);
+        }
+        
+        .mortise-name {
+            color: #f5e6d3;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .mortise-hint {
+            color: #d4a574;
+            font-size: 12px;
+        }
+        
+        #mortise-knowledge {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            padding: 15px;
+            background: rgba(45, 27, 14, 0.95);
+            border: 2px solid #d4a574;
+            border-radius: 10px;
+            color: #f5e6d3;
+            font-size: 14px;
+            line-height: 1.6;
+            display: none;
+        }
+        
+        #mortise-knowledge.active {
+            display: block;
+        }
+        
+        #mortise-knowledge-title {
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        #mortise-info {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        #mortise-count {
+            font-size: 20px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        #mortise-timer {
+            font-size: 18px;
+            color: #f5e6d3;
+        }
+        
+        #mortise-timer.urgent {
+            color: #ff4444;
+            animation: pulse 0.5s infinite;
+        }
+        
+        .stone-piece {
+            display: grid;
+            gap: 2px;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
+        }
+        
+        .stone-block {
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, #a0a0a0 0%, #808080 30%, #606060 70%, #4a4a4a 100%);
+            border-radius: 3px;
+            border: 1px solid #3a3a3a;
+            box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .foundation-piece {
+            display: contents;
+        }
+        
+        .foundation-block {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #a0a0a0 0%, #808080 30%, #606060 70%, #4a4a4a 100%);
+            border-radius: 4px;
+            border: 1px solid #3a3a3a;
+            box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.2), inset 0 -1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        #stone-info {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        #stone-count {
+            font-size: 20px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        #stone-timer {
+            font-size: 18px;
+            color: #f5e6d3;
+        }
+        
+        #stone-timer.urgent {
+            color: #ff4444;
+            animation: pulse 0.5s infinite;
+        }
+        
+        @keyframes foundation-complete {
+            0% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
+            100% { transform: translateX(-50%) scale(1); }
+        }
+        
+        #brick-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 400;
+        }
+        
+        #brick-modal.active {
+            display: flex;
+        }
+        
+        #brick-frame {
+            background: linear-gradient(180deg, #8B0000 0%, #5D0000 100%);
+            border: 8px solid #CD5C5C;
+            border-radius: 20px;
+            padding: 30px;
+            width: 550px;
+            max-width: 90vw;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        #brick-title {
+            text-align: center;
+            font-size: 26px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+        }
+        
+        #brick-scene {
+            background: linear-gradient(180deg, #6d4c41 0%, #4e342e 50%, #3e2723 100%);
+            border: 4px solid #5d4037;
+            border-radius: 15px;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 5px 20px rgba(0, 0, 0, 0.4);
+            padding: 30px;
+        }
+        
+        #brick-oven {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        #temperature-range {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .temp-mark {
+            font-size: 16px;
+            color: #f5e6d3;
+            font-weight: bold;
+        }
+        
+        .temp-mark.left {
+            color: #87CEEB;
+        }
+        
+        .temp-mark.right {
+            color: #FF6347;
+        }
+        
+        .temp-range {
+            flex: 1;
+            height: 4px;
+            background: linear-gradient(90deg, #87CEEB 0%, #FFD700 50%, #FF6347 100%);
+            margin: 0 10px;
+            border-radius: 2px;
+        }
+        
+        #temperature-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #8B4513;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        #temperature-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #87CEEB 0%, #FFD700 50%, #FF6347 100%);
+            width: 0%;
+            transition: width 0.2s ease;
+        }
+        
+        #temperature-indicator {
+            position: absolute;
+            top: -5px;
+            width: 30px;
+            height: 30px;
+            background: #ffd700;
+            border: 2px solid #8B4513;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.6);
+            transition: left 0.2s ease;
+        }
+        
+        #temperature-value {
+            font-size: 24px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        #brick-controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        #cool-button,
+        #heat-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+        
+        #cool-button {
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
+            color: #2d1b0e;
+            box-shadow: 0 4px 15px rgba(135, 206, 235, 0.4);
+        }
+        
+        #heat-button {
+            background: linear-gradient(135deg, #FF6347 0%, #B22222 100%);
+            color: #f5e6d3;
+            box-shadow: 0 4px 15px rgba(255, 99, 71, 0.4);
+        }
+        
+        #cool-button:hover,
+        #heat-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        #cool-button:active,
+        #heat-button:active {
+            transform: scale(0.95);
+        }
+        
+        #brick-progress {
+            margin-top: 20px;
+        }
+        
+        #brick-progress-bar {
+            width: 100%;
+            height: 25px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #8B4513;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        #brick-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #32CD32 0%, #228B22 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        #brick-progress-text {
+            text-align: center;
+            font-size: 16px;
+            color: #f5e6d3;
+            font-weight: bold;
+        }
+        
+        #brick-info {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        #brick-count {
+            font-size: 20px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        #brick-timer {
+            font-size: 18px;
+            color: #f5e6d3;
+        }
+        
+        #brick-timer.urgent {
+            color: #ff4444;
+            animation: pulse 0.5s infinite;
+        }
+        
+        #brick-hint {
+            background: rgba(45, 27, 14, 0.9);
+            border: 2px solid #d4a574;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hint-text {
+            font-size: 18px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .hint-subtext {
+            font-size: 14px;
+            color: #d4a574;
+        }
+        
+        #tile-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 400;
+        }
+        
+        #tile-modal.active {
+            display: flex;
+        }
+        
+        #tile-frame {
+            background: linear-gradient(180deg, #CD853F 0%, #8B4513 100%);
+            border: 8px solid #DEB887;
+            border-radius: 20px;
+            padding: 30px;
+            width: 550px;
+            max-width: 90vw;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        #tile-title {
+            text-align: center;
+            font-size: 26px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+        }
+        
+        #tile-scene {
+            background: linear-gradient(180deg, #6d4c41 0%, #4e342e 50%, #3e2723 100%);
+            border: 4px solid #5d4037;
+            border-radius: 15px;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 5px 20px rgba(0, 0, 0, 0.4);
+            padding: 20px;
+        }
+        
+        #tile-hint {
+            background: rgba(45, 27, 14, 0.9);
+            border: 2px solid #d4a574;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        #roof-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        #roof {
+            display: grid;
+            grid-template-columns: repeat(4, 80px);
+            grid-template-rows: repeat(3, 60px);
+            gap: 4px;
+            justify-content: center;
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .roof-slot {
+            width: 80px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px dashed #d4a574;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .roof-slot:hover {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+        
+        .roof-slot.filled {
+            border-color: #6d4c41;
+            border-style: solid;
+            background: transparent;
+        }
+        
+        .roof-slot.wrong {
+            border-color: #ff4444;
+            background: rgba(255, 68, 68, 0.2);
+            animation: wrong-pulse 0.5s ease-in-out;
+        }
+        
+        @keyframes wrong-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .tile {
+            width: 70px;
+            height: 50px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #2d1b0e;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .tile.banwa {
+            background: linear-gradient(135deg, #CD853F 0%, #DEB887 100%);
+        }
+        
+        .tile.tongwa {
+            background: linear-gradient(135deg, #A0522D 0%, #CD853F 100%);
+        }
+        
+        .tile.wadang {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            border-radius: 50% 50% 0 0;
+        }
+        
+        .tile.dishui {
+            background: linear-gradient(135deg, #DEB887 0%, #F5DEB3 100%);
+            border-radius: 0 0 50% 50%;
+        }
+        
+        .water-drop {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 12px;
+            background: #87CEEB;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            animation: drip 1s infinite;
+        }
+        
+        @keyframes drip {
+            0% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            100% { transform: translateX(-50%) translateY(30px); opacity: 0; }
+        }
+        
+        #tile-palette {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tile-type {
+            background: linear-gradient(135deg, #8d6e63 0%, #6d4c41 100%);
+            border: 2px solid #5d4037;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 100px;
+            text-align: center;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tile-type:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        }
+        
+        .tile-type.selected {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+            color: #2d1b0e;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+        }
+        
+        .tile-icon {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .tile-desc {
+            font-size: 12px;
+            color: #d4a574;
+        }
+        
+        .tile-type.selected .tile-desc {
+            color: #2d1b0e;
+        }
+        
+        #tile-progress {
+            margin-top: 20px;
+        }
+        
+        #tile-progress-bar {
+            width: 100%;
+            height: 25px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #8B4513;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        #tile-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #32CD32 0%, #228B22 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        #tile-progress-text {
+            text-align: center;
+            font-size: 16px;
+            color: #f5e6d3;
+            font-weight: bold;
+        }
+        
+        #tile-info {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        #tile-level {
+            font-size: 18px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        #tile-timer {
+            font-size: 18px;
+            color: #f5e6d3;
+        }
+        
+        #tile-timer.urgent {
+            color: #ff4444;
+            animation: pulse 0.5s infinite;
+        }
+        
+        #tile-tutorial {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(45, 27, 14, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999999;
+            border-radius: 15px;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.95);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        #tile-tutorial.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+        
+        #tile-tutorial.exiting {
+            opacity: 0;
+            transform: scale(1.05);
+        }
+        
+        .tutorial-content {
+            background: linear-gradient(180deg, #6d4c41 0%, #4e342e 100%);
+            border: 4px solid #d4a574;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            max-height: 70vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: tutorialContentIn 0.8s ease-out forwards;
+            animation-delay: 0.3s;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tutorial-content button {
+            flex-shrink: 0;
+            margin-top: 20px;
+            padding: 15px;
+            font-size: 18px;
+        }
+        
+        @keyframes tutorialContentIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .tutorial-content h3 {
+            text-align: center;
+            color: #ffd700;
+            font-size: 28px;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+            font-family: 'Microsoft YaHei', serif;
+            letter-spacing: 2px;
+        }
+        
+        .tutorial-step {
+            display: flex;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            border-left: 5px solid #ffd700;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: stepIn 0.6s ease-out forwards;
+        }
+        
+        .tutorial-step:nth-child(1) { animation-delay: 0.5s; }
+        .tutorial-step:nth-child(2) { animation-delay: 0.7s; }
+        .tutorial-step:nth-child(3) { animation-delay: 0.9s; }
+        .tutorial-step:nth-child(4) { animation-delay: 1.1s; }
+        
+        @keyframes stepIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .tutorial-step:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tutorial-step:last-child {
+            margin-bottom: 30px;
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d1b0e;
+            margin-right: 20px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-content h4 {
+            color: #ffd700;
+            font-size: 20px;
+            margin-bottom: 12px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+        
+        .step-content p {
+            color: #f5e6d3;
+            line-height: 1.8;
+            margin-bottom: 12px;
+            font-size: 16px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .step-content ol {
+            color: #f5e6d3;
+            margin-left: 20px;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+        
+        .step-content li {
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .step-content strong {
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        .tutorial-example {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .example-tile {
+            width: 70px;
+            height: 45px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #2d1b0e;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: tileIn 0.5s ease-out forwards;
+        }
+        
+        .example-tile:nth-child(1) { animation-delay: 1.3s; }
+        .example-tile:nth-child(2) { animation-delay: 1.4s; }
+        .example-tile:nth-child(3) { animation-delay: 1.5s; }
+        .example-tile:nth-child(4) { animation-delay: 1.6s; }
+        
+        @keyframes tileIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .example-tile:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6);
+        }
+        
+        .example-tile.banwa {
+            background: linear-gradient(135deg, #CD853F 0%, #DEB887 100%);
+        }
+        
+        .example-tile.tongwa {
+            background: linear-gradient(135deg, #A0522D 0%, #CD853F 100%);
+        }
+        
+        .example-tile.wadang {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            border-radius: 50% 50% 0 0;
+        }
+        
+        .example-tile.dishui {
+            background: linear-gradient(135deg, #DEB887 0%, #F5DEB3 100%);
+            border-radius: 0 0 50% 50%;
+        }
+        
+        #start-tile-game {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            border: none;
+            border-radius: 12px;
+            color: #2d1b0e;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.7);
+            font-family: 'Microsoft YaHei', serif;
+            letter-spacing: 2px;
+            opacity: 1;
+            transform: translateY(0);
+            z-index: 999999;
+            position: relative;
+            animation: buttonPulse 2s infinite;
+        }
+        
+        @keyframes buttonPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes buttonIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        #start-tile-game:hover {
+            transform: scale(1.03) translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.7);
+            background: linear-gradient(135deg, #ffed4e 0%, #ff9e00 100%);
+        }
+        
+        #start-tile-game:active {
+            transform: scale(0.98);
+        }
+        
+        .tutorial-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .tutorial-content::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        .tutorial-content::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #d4a574 0%, #8b6914 100%);
+            border-radius: 4px;
+        }
+        
+        .tutorial-content::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #ffd700 0%, #ffb300 100%);
+        }
+    </style>
+</head>
+<body>
+    <div id="start-screen">
+        <h1 id="start-title">我在古代建房子</h1>
+        <div class="decorative-line"></div>
+        <p id="start-subtitle">穿越时空，传承匠心</p>
+        <button id="start-btn" onclick="if(window.gameScene && window.gameScene.startGame) window.gameScene.startGame()">开始旅程</button>
+    </div>
+    
+    <div id="game-container">
+        <div id="game-ui">
+            <div id="task-panel">
+                <div id="task-title">当前任务</div>
+                <div id="task-content">点击开始游戏</div>
+                <div id="task-progress"></div>
+            </div>
+            
+            <div id="backpack-panel">
+                <div id="backpack-title">背包</div>
+                <div id="backpack-grid">
+                    <div class="backpack-slot" data-slot="0"></div>
+                    <div class="backpack-slot" data-slot="1"></div>
+                    <div class="backpack-slot" data-slot="2"></div>
+                    <div class="backpack-slot" data-slot="3"></div>
+                    <div class="backpack-slot" data-slot="4"></div>
+                    <div class="backpack-slot" data-slot="5"></div>
+                    <div class="backpack-slot" data-slot="6"></div>
+                    <div class="backpack-slot" data-slot="7"></div>
+                </div>
+            </div>
+            
+            <div id="map-panel">
+                <div id="map-title">地图</div>
+                <div id="map-container">
+                    <div id="map"></div>
+                    <div id="player-marker"></div>
+                    <div class="map-marker" data-area="forest" title="树林">🌲</div>
+                    <div class="map-marker" data-area="quarry" title="采石场">⛏️</div>
+                    <div class="map-marker" data-area="workshop" title="木工坊">🔨</div>
+                    <div class="map-marker" data-area="kiln" title="窑厂">🏭</div>
+                    <div class="map-marker" data-area="tileWorkshop" title="瓦坊">🏺</div>
+                    <div class="map-marker" data-area="buildingSite" title="建房工地">🏗️</div>
+                </div>
+            </div>
+            
+            <div id="action-hint"></div>
+        </div>
+    </div>
+    
+    <div id="dialogue-modal">
+        <div id="dialogue-box">
+            <div id="dialogue-speaker"></div>
+            <div id="dialogue-text"></div>
+            <div id="dialogue-hint">点击继续...</div>
+        </div>
+    </div>
+    
+    <div id="knowledge-modal">
+        <div id="knowledge-box">
+            <div id="knowledge-title"></div>
+            <div id="knowledge-content"></div>
+            <button id="knowledge-close" onclick="if(window.gameScene && window.gameScene.closeKnowledgeModal) window.gameScene.closeKnowledgeModal()">我知道了</button>
+        </div>
+    </div>
+    
+    <button id="collect-button" onclick="if(window.gameScene && window.gameScene.startCollect) window.gameScene.startCollect()">采集</button>
+    
+    <div id="collect-progress">
+        <div id="collect-progress-bar"></div>
+    </div>
+    
+    <div id="chopping-modal">
+        <div id="chopping-frame">
+            <div id="chopping-title">🪓 砍树收集木材</div>
+            <div id="chopping-scene">
+                <div id="tree">
+                    <img id="tree-image" src="assets/shu.png" alt="树">
+                </div>
+                <div id="axe" onclick="if(window.gameScene && window.gameScene.chopTree) window.gameScene.chopTree()">
+                    <img src="assets/futou.png" alt="斧头">
+                </div>
+            </div>
+            <div id="chopping-info">
+                <div id="chopping-count">进度: 0/6</div>
+                <div id="chopping-timer">剩余时间: 5.0s</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="brick-modal">
+        <div id="brick-frame">
+            <div id="brick-title">🏭 烧制青砖</div>
+            <div id="brick-scene">
+                <div id="brick-hint">
+                    <div class="hint-text">🎯 目标：保持温度在 800-1000°C 之间持续 10 秒</div>
+                    <div class="hint-subtext">⚠️ 温度会自然下降，需要及时升温</div>
+                </div>
+                <div id="brick-oven">
+                    <div id="temperature-range">
+                        <div class="temp-mark left">800°C</div>
+                        <div class="temp-range"></div>
+                        <div class="temp-mark right">1000°C</div>
+                    </div>
+                    <div id="temperature-bar">
+                        <div id="temperature-fill"></div>
+                        <div id="temperature-indicator"></div>
+                    </div>
+                    <div id="temperature-value">600°C</div>
+                </div>
+                <div id="brick-controls">
+                    <button id="cool-button" onclick="if(window.gameScene && window.gameScene.coolTemperature) window.gameScene.coolTemperature()">❄️ 降温</button>
+                    <button id="heat-button" onclick="if(window.gameScene && window.gameScene.heatTemperature) window.gameScene.heatTemperature()">🔥 升温</button>
+                </div>
+                <div id="brick-progress">
+                    <div id="brick-progress-bar">
+                        <div id="brick-progress-fill"></div>
+                    </div>
+                    <div id="brick-progress-text">稳定时间: 0/10s</div>
+                </div>
+            </div>
+            <div id="brick-info">
+                <div id="brick-count">进度: 0/8</div>
+                <div id="brick-timer">剩余时间: 30.0s</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="tile-modal">
+        <div id="tile-frame">
+            <div id="tile-title">🏺 瓦片铺设挑战</div>
+            <div id="tile-scene">
+                <div id="tile-hint">
+                    <div class="hint-text">🎯 目标：按照正确顺序铺设瓦片</div>
+                    <div class="hint-subtext">⚠️ 先铺板瓦 → 再铺筒瓦 → 最后装瓦当和滴水</div>
+                </div>
+                <div id="tile-tutorial">
+                    <div class="tutorial-content">
+                        <h3>🎮 游戏教程</h3>
+                        <div class="tutorial-step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>选择瓦片类型</h4>
+                                <p>点击下方的瓦片类型进行选择</p>
+                                <div class="tutorial-example">
+                                    <div class="example-tile banwa">板瓦</div>
+                                    <div class="example-tile tongwa">筒瓦</div>
+                                    <div class="example-tile wadang">瓦当</div>
+                                    <div class="example-tile dishui">滴水</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tutorial-step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>铺设顺序</h4>
+                                <p>必须按照以下顺序铺设：</p>
+                                <ol>
+                                    <li><strong>板瓦</strong>：铺设在最下层，作为基层</li>
+                                    <li><strong>筒瓦</strong>：铺设在板瓦之上，覆盖缝隙</li>
+                                    <li><strong>滴水</strong>：安装在板瓦下端，引导雨水</li>
+                                    <li><strong>瓦当</strong>：安装在筒瓦顶端，有装饰作用</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="tutorial-step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>放置瓦片</h4>
+                                <p>点击屋顶上的位置来放置选定的瓦片</p>
+                                <p><strong>正确位置</strong>：瓦片会平滑放置</p>
+                                <p><strong>错误位置</strong>：会显示漏水效果</p>
+                            </div>
+                        </div>
+                        <div class="tutorial-step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h4>胜利条件</h4>
+                                <p>在60秒内完成所有12个位置的正确铺设</p>
+                                <p>保持温度在800-1000°C之间持续10秒</p>
+                            </div>
+                        </div>
+                        <button id="start-tile-game" onclick="if(window.gameScene && window.gameScene.startTileGameWithoutTutorial) window.gameScene.startTileGameWithoutTutorial()">开始游戏</button>
+                    </div>
+                </div>
+                <div id="roof-container">
+                    <div id="roof"></div>
+                </div>
+                <div id="tile-palette">
+                    <div class="tile-type" data-tile="banwa">
+                        <div class="tile-icon">板瓦</div>
+                        <div class="tile-desc">片状，铺设基层</div>
+                    </div>
+                    <div class="tile-type" data-tile="tongwa">
+                        <div class="tile-icon">筒瓦</div>
+                        <div class="tile-desc">半圆筒状，覆盖缝隙</div>
+                    </div>
+                    <div class="tile-type" data-tile="wadang">
+                        <div class="tile-icon">瓦当</div>
+                        <div class="tile-desc">筒瓦顶端，有装饰</div>
+                    </div>
+                    <div class="tile-type" data-tile="dishui">
+                        <div class="tile-icon">滴水</div>
+                        <div class="tile-desc">板瓦下端，引导雨水</div>
+                    </div>
+                </div>
+                <div id="tile-progress">
+                    <div id="tile-progress-bar">
+                        <div id="tile-progress-fill"></div>
+                    </div>
+                    <div id="tile-progress-text">进度: 0/12</div>
+                </div>
+            </div>
+            <div id="tile-info">
+                <div id="tile-level">关卡: 1/3</div>
+                <div id="tile-timer">剩余时间: 60.0s</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="stone-modal">
+        <div id="stone-frame">
+            <div id="stone-title">🪨 石块拼接成正方形</div>
+            <div id="stone-scene">
+                <div id="stone-palette"></div>
+                <div id="stone-foundation"></div>
+                <button id="rotate-button">🔄 旋转</button>
+                <button id="undo-button">↩️ 撤回</button>
+            </div>
+            <div id="stone-info">
+                <div id="stone-count">进度: 0/16</div>
+                <div id="stone-timer">剩余时间: 60.0s</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="mortise-modal">
+        <div id="mortise-frame">
+            <div id="mortise-title">🔩 榫卯拼接</div>
+            <div id="mortise-scene">
+                <div id="mortise-tenons"></div>
+                <div id="mortise-holes"></div>
+                <div id="mortise-knowledge">
+                    <div id="mortise-knowledge-title"></div>
+                    <div id="mortise-knowledge-content"></div>
+                </div>
+            </div>
+            <div id="mortise-info">
+                <div id="mortise-count">进度: 0/5</div>
+                <div id="mortise-timer">剩余时间: 90.0s</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        window.gameScene = null;
+        
+        function setGameScene(scene) {
+            window.gameScene = scene;
+        }
+        
+        // 测试函数
+        function testBrickGame() {
+            if (window.gameScene && window.gameScene.startBrickGame) {
+                window.gameScene.startBrickGame();
+            }
+        }
+        
+        function testMortiseGame() {
+            if (window.gameScene && window.gameScene.startMortiseGame) {
+                window.gameScene.startMortiseGame();
+            }
+        }
+        
+        function testStoneGame() {
+            if (window.gameScene && window.gameScene.startStoneGame) {
+                window.gameScene.startStoneGame();
+            }
+        }
+        
+        function testChoppingGame() {
+            if (window.gameScene && window.gameScene.startChoppingGame) {
+                window.gameScene.startChoppingGame();
+            }
+        }
+        
+        function testTileGame() {
+            if (window.gameScene && window.gameScene.startTileGame) {
+                window.gameScene.startTileGame();
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

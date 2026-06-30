@@ -1,0 +1,31 @@
+{
+  "frames": [
+    {
+      "filename": "wafang.0",
+      "frame": { "w": 333, "h": 186, "x": 2, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "wafang.1",
+      "frame": { "w": 333, "h": 186, "x": 2, "y": 192 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "wafang.2",
+      "frame": { "w": 333, "h": 186, "x": 2, "y": 382 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "wafang.3",
+      "frame": { "w": 333, "h": 185, "x": 2, "y": 572 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    }
+  ],
+  "config": {
+    "noSpacing": false,
+    "totalWidth": 337,
+    "totalHeight": 759,
+    "frameWidth": 333,
+    "frameHeight": 186
+  }
+}

@@ -1,0 +1,41 @@
+{
+	"textures": [
+		{
+			"image": "left.stand.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 49,
+				"h": 84
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "doubao-4.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 45,
+						"h": 80
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 45,
+						"h": 80
+					},
+					"frame": {
+						"x": 2,
+						"y": 2,
+						"w": 45,
+						"h": 80
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:160493407234fa0275d70b7fbdfe8f96:952171b08aff3cc0e92044a5812eb2eb:e85c3f5feda636580c053cffd3d598dc$"
+	}
+}

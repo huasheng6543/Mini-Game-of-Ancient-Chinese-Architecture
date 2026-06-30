@@ -1,0 +1,31 @@
+{
+  "frames": [
+    {
+      "filename": "yaochang.0",
+      "frame": { "w": 334, "h": 168, "x": 2, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "yaochang.1",
+      "frame": { "w": 329, "h": 168, "x": 2, "y": 174 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "yaochang.2",
+      "frame": { "w": 328, "h": 168, "x": 2, "y": 346 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "yaochang.3",
+      "frame": { "w": 329, "h": 187, "x": 2, "y": 518 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    }
+  ],
+  "config": {
+    "noSpacing": false,
+    "totalWidth": 338,
+    "totalHeight": 707,
+    "frameWidth": 334,
+    "frameHeight": 187
+  }
+}

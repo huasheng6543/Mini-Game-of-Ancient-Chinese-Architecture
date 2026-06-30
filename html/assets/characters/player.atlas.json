@@ -1,0 +1,71 @@
+{
+  "frames": [
+    {
+      "filename": "down.stand",
+      "frame": { "w": 50, "h": 83, "x": 2, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "down.step1",
+      "frame": { "w": 50, "h": 83, "x": 56, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "down.step2",
+      "frame": { "w": 52, "h": 86, "x": 110, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "left.stand",
+      "frame": { "w": 49, "h": 84, "x": 166, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "left.step1",
+      "frame": { "w": 51, "h": 84, "x": 219, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "left.step2",
+      "frame": { "w": 51, "h": 84, "x": 274, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "right.stand",
+      "frame": { "w": 48, "h": 85, "x": 329, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "right.step1",
+      "frame": { "w": 55, "h": 84, "x": 381, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "right.step2",
+      "frame": { "w": 49, "h": 84, "x": 440, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "up.stand",
+      "frame": { "w": 46, "h": 80, "x": 493, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "up.step1",
+      "frame": { "w": 49, "h": 82, "x": 543, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    },
+    {
+      "filename": "up.step2",
+      "frame": { "w": 46, "h": 80, "x": 596, "y": 2 },
+      "anchor": { "x": 0.5, "y": 0.85 }
+    }
+  ],
+  "config": {
+    "noSpacing": false,
+    "totalWidth": 644,
+    "totalHeight": 90,
+    "frameWidth": 104,
+    "frameHeight": 104
+  }
+}

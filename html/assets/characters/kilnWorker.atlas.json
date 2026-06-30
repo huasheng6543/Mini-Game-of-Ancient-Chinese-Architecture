@@ -1,0 +1,16 @@
+{
+  "frames": {
+    "kilnWorker.0": {
+      "frame": { "x": 1, "y": 1, "w": 491, "h": 502 }
+    },
+    "kilnWorker.1": {
+      "frame": { "x": 1, "y": 505, "w": 491, "h": 503 }
+    },
+    "kilnWorker.2": {
+      "frame": { "x": 1, "y": 1010, "w": 491, "h": 503 }
+    },
+    "kilnWorker.3": {
+      "frame": { "x": 1, "y": 1515, "w": 491, "h": 503 }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+	"textures": [
+		{
+			"image": "up.step1.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 49,
+				"h": 82
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "doubao-9.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 45,
+						"h": 78
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 45,
+						"h": 78
+					},
+					"frame": {
+						"x": 2,
+						"y": 2,
+						"w": 45,
+						"h": 78
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:4e1c4def9ae8007a8eddcd04ccdf0477:c4254d1d37e8755f79947da957427723:4b3fb870a4aff6b429f693f715cc9913$"
+	}
+}
